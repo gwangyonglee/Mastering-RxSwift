@@ -27,10 +27,26 @@ import RxCocoa
 /*:
  # AsyncSubject
  */
+// Publish, Behavior, Replay Subject는 이벤트가 전달되면 즉시 구독자에게 이벤트 전달
+// AsyncSubject는 Completed이벤트가 전달되기 전까지 어떤 이벤트도 구독자에게 이벤트를 전달하지 않음.
+// Completed이벤트가 전달되면 그 시점에 가장 최근에 전달된 Next 이벤트 1개를 구독자에게 전달.
+// Error는 next이벤트가 전달되지 않음.
 
-let bag = DisposeBag()
+let disposeBag = DisposeBag()
 
 enum MyError: Error {
    case error
 }
 
+let asyncSubject = AsyncSubject<Int>()
+asyncSubject.subscribe { print($0) }
+	.disposed(by: disposeBag)
+
+asyncSubject.onNext(1)
+asyncSubject.onNext(2)
+asyncSubject.onNext(3)
+asyncSubject.onCompleted()
+//asyncSubject.onError(MyError.error)
+// 출력
+// next(3)
+// completed
