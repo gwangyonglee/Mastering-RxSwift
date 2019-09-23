@@ -27,7 +27,30 @@ import RxCocoa
 /*:
  # Relay
  */
+// Relay는 onCompleted, onError를 전달을 받지도 하지도 않음. Next만 전달
+// 구독자가 disposed될 때 까지 종료되지 않기때문에 주로 UI 작업에 사용함.
 
-let bag = DisposeBag()
+let disposeBag = DisposeBag()
 
+let publishRelay = PublishRelay<Int>()
+publishRelay.subscribe { (print("1: \($0)")) }
+	.disposed(by: disposeBag)
+// Relay에서는 Next이벤트를 전달할 땐 accept를 사용
+publishRelay.accept(1)
 
+// 출력
+// 1: next(1)
+
+let behaviorRelay = BehaviorRelay(value: 1)
+behaviorRelay.accept(2)
+
+// 가장 최근 next이벤트가 구독자로 전달
+behaviorRelay.subscribe{ (print("2: \($0)")) }
+	.disposed(by: disposeBag)
+// 출력
+// 2: next(2)
+
+behaviorRelay.accept(3)
+// 2: next(3)
+
+print(behaviorRelay.value)
